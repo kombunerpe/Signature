@@ -1,4 +1,119 @@
 <!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 Page Not Found</title>
+    <style>
+        /*======================
+            404 page
+        =======================*/
+
+        .page_404 {
+            padding: 40px 0;
+            background: #fff;
+            font-family: 'Arvo', serif;
+        }
+
+        .page_404 img {
+            width: 100%;
+        }
+
+        .four_zero_four_bg {
+            background-image: url(https://cdn.dribbble.com/users/285475/screenshots/2083086/dribbble_1.gif);
+            height: 1000px;
+            background-position: center;
+            background-repeat: no-repeat;
+            text-align: center;
+        }
+
+        .four_zero_four_bg h1 {
+            font-size: 80px;
+            color: #fff;
+        }
+
+        .four_zero_four_bg h3 {
+            font-size: 30px;
+            color: #fff;
+        }
+
+        .link_404 {
+            color: #fff !important;
+            padding: 10px 20px;
+            background: #39ac31;
+            margin: 20px 0;
+            display: inline-block;
+            text-decoration: none;
+        }
+
+        .contant_box_404 {
+            margin-top: -50px;
+            text-align: center;
+        }
+
+        .contant_box_404 h3 {
+            font-size: 24px;
+        }
+
+        .contant_box_404 p {
+            font-size: 18px;
+            color: #555;
+        }
+
+        @media (max-width: 767px) {
+            .four_zero_four_bg {
+                height: 400px;
+            }
+
+            .four_zero_four_bg h1 {
+                font-size: 60px;
+            }
+
+            .four_zero_four_bg h3 {
+                font-size: 24px;
+            }
+
+            .contant_box_404 h3 {
+                font-size: 20px;
+            }
+
+            .contant_box_404 p {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <section class="page_404">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="col-sm-10 col-sm-offset-1 text-center">
+                        <div class="four_zero_four_bg">
+                            <h1 class="text-center">404</h1>
+                        </div>
+
+                        <div class="contant_box_404">
+                            <h3 class="h2">
+                                Looks like you're lost
+                            </h3>
+
+                            <p>The page you are looking for is not available!</p>
+
+                            <!-- <a href="/" class="link_404">Go to Home</a> -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+
+</html>
+
+<!-- <!DOCTYPE html>
 <html>
 <head> 
    <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -55,6 +170,6 @@ savePNGButton.addEventListener("click", function (event){
 function my_function(){
    document.getElementById("note").innerHTML="";
 }
-</script>
-</body>
-</html>
+</script> -->
+<!-- </body>
+</html> -->
