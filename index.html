@@ -36,21 +36,42 @@
 
         // Menggambar tanda tangan pada canvas
         let isDrawing = false;
+
+        // Mouse events
         signaturePad.addEventListener('mousedown', startDrawing);
         signaturePad.addEventListener('mousemove', drawSignature);
         signaturePad.addEventListener('mouseup', stopDrawing);
         signaturePad.addEventListener('mouseleave', stopDrawing);
 
+        // Touch events
+        signaturePad.addEventListener('touchstart', startDrawing);
+        signaturePad.addEventListener('touchmove', drawSignature);
+        signaturePad.addEventListener('touchend', stopDrawing);
+        signaturePad.addEventListener('touchcancel', stopDrawing);
+
         // Fungsi untuk mulai menggambar
         function startDrawing(e) {
+            e.preventDefault(); // Menghindari aksi default browser (terutama di touchscreen)
             isDrawing = true;
-            ctx.moveTo(e.offsetX, e.offsetY);
+
+            const rect = signaturePad.getBoundingClientRect();
+            const offsetX = e.touches ? e.touches[0].clientX - rect.left : e.offsetX;
+            const offsetY = e.touches ? e.touches[0].clientY - rect.top : e.offsetY;
+
+            ctx.moveTo(offsetX, offsetY);
         }
 
         // Fungsi untuk menggambar tanda tangan
         function drawSignature(e) {
             if (!isDrawing) return;
-            ctx.lineTo(e.offsetX, e.offsetY);
+
+            e.preventDefault(); // Menghindari aksi default browser (terutama di touchscreen)
+
+            const rect = signaturePad.getBoundingClientRect();
+            const offsetX = e.touches ? e.touches[0].clientX - rect.left : e.offsetX;
+            const offsetY = e.touches ? e.touches[0].clientY - rect.top : e.offsetY;
+
+            ctx.lineTo(offsetX, offsetY);
             ctx.stroke();
         }
 
