@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Signature for PDF</title>
+    <script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
+</head>
+<body>
+    <h1>Digital Signature for PDF</h1>
+    <input type="file" id="pdf-upload" accept="application/pdf" />
+    <br><br>
+    <canvas id="signature-pad" width="500" height="200" style="border: 1px solid black;"></canvas>
+    <br>
+    <button onclick="clearSignature()">Clear Signature</button>
+    <br><br>
+    <button onclick="addSignatureToPdf()">Add Signature to PDF</button>
+    <br><br>
+    <a id="download-link" style="display: none" href="#" download="signed-pdf.pdf">Download Signed PDF</a>
+
+    <script>
+        const pdfUpload = document.getElementById('pdf-upload');
+        const signaturePad = document.getElementById('signature-pad');
+        const ctx = signaturePad.getContext('2d');
+        let signatureDataUrl = null;
+        let uploadedPdf = null;
+
+        // Event listener untuk upload PDF
+        pdfUpload.addEventListener('change', handlePdfUpload);
+
+        // Menggambar tanda tangan pada canvas
+        let isDrawing = false;
+        signaturePad.addEventListener('mousedown', startDrawing);
+        signaturePad.addEventListener('mousemove', drawSignature);
+        signaturePad.addEventListener('mouseup', stopDrawing);
+        signaturePad.addEventListener('mouseleave', stopDrawing);
+
+        function startDrawing(e) {
+            isDrawing = true;
+            ctx.moveTo(e.offsetX, e.offsetY);
+        }
+
+        function drawSignature(e) {
+            if (!isDrawing) return;
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.stroke();
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+            signatureDataUrl = signaturePad.toDataURL();
+        }
+
+        function clearSignature() {
+            ctx.clearRect(0, 0, signaturePad.width, signaturePad.height);
+            signatureDataUrl = null;
+        }
+
+        // Fungsi untuk menambahkan tanda tangan pada PDF
+        // async function addSignatureToPdf() {
+        //     if (!uploadedPdf) {
+        //         alert("Please upload a PDF file first.");
+        //         return;
+        //     }
+
+        //     if (!signatureDataUrl) {
+        //         alert("Please draw a signature.");
+        //         return;
+        //     }
+
+        //     // Mengambil PDF yang diupload
+        //     const pdfDoc = await PDFLib.PDFDocument.load(uploadedPdf);
+
+        //     // Menentukan halaman terakhir
+        //     const pages = pdfDoc.getPages();
+        //     const lastPage = pages[pages.length - 1]; // Halaman terakhir
+        //     const { width, height } = lastPage.getSize();
+
+        //     // Mengubah tanda tangan ke dalam format image
+        //     const signatureImageBytes = await fetch(signatureDataUrl).then(res => res.arrayBuffer());
+        //     const signatureImage = await pdfDoc.embedPng(signatureImageBytes);
+
+        //     // Menentukan ukuran gambar tanda tangan
+        //     const signatureWidth = 150;
+        //     const signatureHeight = 75;
+
+        //     // Menentukan posisi tanda tangan di bawah teks terakhir (perkiraan)
+        //     // Asumsi: teks terakhir berada pada ketinggian Y yang lebih tinggi dari bagian bawah halaman
+        //     const marginBottom = 100; // Margin dari bawah halaman
+        //     const yPosition = height - marginBottom - signatureHeight; // Menempatkan tanda tangan di bawah teks terakhir
+
+        //     // Menempatkan tanda tangan di bagian bawah kalimat terakhir
+        //     const xPosition = width - signatureWidth - 30; // 30px dari sisi kanan halaman
+
+        //     // Menambahkan gambar tanda tangan ke halaman terakhir
+        //     lastPage.drawImage(signatureImage, {
+        //         x: xPosition,
+        //         y: yPosition,
+        //         width: signatureWidth,
+        //         height: signatureHeight,
+        //     });
+
+        //     // Menghasilkan PDF yang telah disign
+        //     const pdfBytes = await pdfDoc.save();
+
+        //     // Menyediakan link untuk mendownload PDF yang telah ditandatangani
+        //     const downloadLink = document.getElementById('download-link');
+        //     const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+        //     downloadLink.href = URL.createObjectURL(blob);
+        //     downloadLink.style.display = 'inline-block';
+        // }
+
+        async function addSignatureToPdf() {
+    if (!uploadedPdf) {
+        alert("Please upload a PDF file first.");
+        return;
+    }
+
+    if (!signatureDataUrl) {
+        alert("Please draw a signature.");
+        return;
+    }
+
+    // Mengambil PDF yang diupload
+    const pdfDoc = await PDFLib.PDFDocument.load(uploadedPdf);
+
+    // Menentukan halaman terakhir
+    const pages = pdfDoc.getPages();
+    const lastPage = pages[pages.length - 1]; // Halaman terakhir
+    const { width, height } = lastPage.getSize();
+
+    // Mengubah tanda tangan ke dalam format image
+    const signatureImageBytes = await fetch(signatureDataUrl).then(res => res.arrayBuffer());
+    const signatureImage = await pdfDoc.embedPng(signatureImageBytes);
+
+    // Menentukan ukuran gambar tanda tangan
+    const signatureWidth = 150;
+    const signatureHeight = 75;
+
+    // Perkiraan posisi teks terakhir: mengurangi margin dari bawah halaman
+    const marginBottom = 600; // Margin dari bawah halaman
+    const approximateTextPositionY = height - marginBottom; // Asumsi teks terakhir dekat dengan bawah halaman
+
+    // Menempatkan tanda tangan di bawah teks terakhir
+    const yPosition = approximateTextPositionY - signatureHeight - 5; // 10px jarak antara teks terakhir dan tanda tangan
+
+    // Menempatkan tanda tangan di bagian bawah kalimat terakhir
+    const xPosition = width - signatureWidth - 50; // 30px dari sisi kanan halaman
+
+    // Menambahkan gambar tanda tangan ke halaman terakhir
+    lastPage.drawImage(signatureImage, {
+        x: xPosition,
+        y: yPosition,
+        width: signatureWidth,
+        height: signatureHeight,
+    });
+
+    // Menghasilkan PDF yang telah disign
+    const pdfBytes = await pdfDoc.save();
+
+    // Menyediakan link untuk mendownload PDF yang telah ditandatangani
+    const downloadLink = document.getElementById('download-link');
+    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+    downloadLink.href = URL.createObjectURL(blob);
+    downloadLink.style.display = 'inline-block';
+}
+
+
+        // Fungsi untuk meng-handle file PDF yang diupload
+        function handlePdfUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function() {
+                    uploadedPdf = reader.result;
+                };
+                reader.readAsArrayBuffer(file);
+            }
+        }
+    </script>
+</body>
+</html>
