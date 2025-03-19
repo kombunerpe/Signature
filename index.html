@@ -10,7 +10,7 @@
     <h1>Digital Signature for PDF</h1>
     <input type="file" id="pdf-upload" accept="application/pdf" />
     <br><br>
-    <canvas id="signature-pad" width="100%" height="70%" style="border: 1px solid black;"></canvas>
+    <canvas id="signature-pad" style="border: 1px solid black;"></canvas>
     <br>
     <button onclick="clearSignature()">Clear Signature</button>
     <br><br>
@@ -25,6 +25,12 @@
         let signatureDataUrl = null;
         let uploadedPdf = null;
 
+        // Fungsi untuk mengubah ukuran kanvas menjadi layar penuh
+        function resizeCanvas() {
+            signaturePad.width = window.innerWidth;
+            signaturePad.height = window.innerHeight * 0.7;  // 70% dari tinggi layar
+        }
+
         // Event listener untuk upload PDF
         pdfUpload.addEventListener('change', handlePdfUpload);
 
@@ -35,136 +41,86 @@
         signaturePad.addEventListener('mouseup', stopDrawing);
         signaturePad.addEventListener('mouseleave', stopDrawing);
 
+        // Fungsi untuk mulai menggambar
         function startDrawing(e) {
             isDrawing = true;
             ctx.moveTo(e.offsetX, e.offsetY);
         }
 
+        // Fungsi untuk menggambar tanda tangan
         function drawSignature(e) {
             if (!isDrawing) return;
             ctx.lineTo(e.offsetX, e.offsetY);
             ctx.stroke();
         }
 
+        // Fungsi untuk berhenti menggambar
         function stopDrawing() {
             isDrawing = false;
             signatureDataUrl = signaturePad.toDataURL();
         }
 
+        // Fungsi untuk membersihkan tanda tangan
         function clearSignature() {
             ctx.clearRect(0, 0, signaturePad.width, signaturePad.height);
             signatureDataUrl = null;
         }
 
         // Fungsi untuk menambahkan tanda tangan pada PDF
-        // async function addSignatureToPdf() {
-        //     if (!uploadedPdf) {
-        //         alert("Please upload a PDF file first.");
-        //         return;
-        //     }
-
-        //     if (!signatureDataUrl) {
-        //         alert("Please draw a signature.");
-        //         return;
-        //     }
-
-        //     // Mengambil PDF yang diupload
-        //     const pdfDoc = await PDFLib.PDFDocument.load(uploadedPdf);
-
-        //     // Menentukan halaman terakhir
-        //     const pages = pdfDoc.getPages();
-        //     const lastPage = pages[pages.length - 1]; // Halaman terakhir
-        //     const { width, height } = lastPage.getSize();
-
-        //     // Mengubah tanda tangan ke dalam format image
-        //     const signatureImageBytes = await fetch(signatureDataUrl).then(res => res.arrayBuffer());
-        //     const signatureImage = await pdfDoc.embedPng(signatureImageBytes);
-
-        //     // Menentukan ukuran gambar tanda tangan
-        //     const signatureWidth = 150;
-        //     const signatureHeight = 75;
-
-        //     // Menentukan posisi tanda tangan di bawah teks terakhir (perkiraan)
-        //     // Asumsi: teks terakhir berada pada ketinggian Y yang lebih tinggi dari bagian bawah halaman
-        //     const marginBottom = 100; // Margin dari bawah halaman
-        //     const yPosition = height - marginBottom - signatureHeight; // Menempatkan tanda tangan di bawah teks terakhir
-
-        //     // Menempatkan tanda tangan di bagian bawah kalimat terakhir
-        //     const xPosition = width - signatureWidth - 30; // 30px dari sisi kanan halaman
-
-        //     // Menambahkan gambar tanda tangan ke halaman terakhir
-        //     lastPage.drawImage(signatureImage, {
-        //         x: xPosition,
-        //         y: yPosition,
-        //         width: signatureWidth,
-        //         height: signatureHeight,
-        //     });
-
-        //     // Menghasilkan PDF yang telah disign
-        //     const pdfBytes = await pdfDoc.save();
-
-        //     // Menyediakan link untuk mendownload PDF yang telah ditandatangani
-        //     const downloadLink = document.getElementById('download-link');
-        //     const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-        //     downloadLink.href = URL.createObjectURL(blob);
-        //     downloadLink.style.display = 'inline-block';
-        // }
-
         async function addSignatureToPdf() {
-    if (!uploadedPdf) {
-        alert("Please upload a PDF file first.");
-        return;
-    }
+            if (!uploadedPdf) {
+                alert("Please upload a PDF file first.");
+                return;
+            }
 
-    if (!signatureDataUrl) {
-        alert("Please draw a signature.");
-        return;
-    }
+            if (!signatureDataUrl) {
+                alert("Please draw a signature.");
+                return;
+            }
 
-    // Mengambil PDF yang diupload
-    const pdfDoc = await PDFLib.PDFDocument.load(uploadedPdf);
+            // Mengambil PDF yang diupload
+            const pdfDoc = await PDFLib.PDFDocument.load(uploadedPdf);
 
-    // Menentukan halaman terakhir
-    const pages = pdfDoc.getPages();
-    const lastPage = pages[pages.length - 1]; // Halaman terakhir
-    const { width, height } = lastPage.getSize();
+            // Menentukan halaman terakhir
+            const pages = pdfDoc.getPages();
+            const lastPage = pages[pages.length - 1]; // Halaman terakhir
+            const { width, height } = lastPage.getSize();
 
-    // Mengubah tanda tangan ke dalam format image
-    const signatureImageBytes = await fetch(signatureDataUrl).then(res => res.arrayBuffer());
-    const signatureImage = await pdfDoc.embedPng(signatureImageBytes);
+            // Mengubah tanda tangan ke dalam format image
+            const signatureImageBytes = await fetch(signatureDataUrl).then(res => res.arrayBuffer());
+            const signatureImage = await pdfDoc.embedPng(signatureImageBytes);
 
-    // Menentukan ukuran gambar tanda tangan
-    const signatureWidth = 150;
-    const signatureHeight = 75;
+            // Menentukan ukuran gambar tanda tangan (lebih besar dan tebal)
+            const signatureWidth = 200;  // Lebih besar sesuai dengan kanvas
+            const signatureHeight = 150; // Lebih besar sesuai dengan kanvas
 
-    // Perkiraan posisi teks terakhir: mengurangi margin dari bawah halaman
-    const marginBottom = 600; // Margin dari bawah halaman
-    const approximateTextPositionY = height - marginBottom; // Asumsi teks terakhir dekat dengan bawah halaman
+            // Perkiraan posisi teks terakhir: mengurangi margin dari bawah halaman
+            const marginBottom = 600; // Margin dari bawah halaman
+            const approximateTextPositionY = height - marginBottom; // Asumsi teks terakhir dekat dengan bawah halaman
 
-    // Menempatkan tanda tangan di bawah teks terakhir
-    const yPosition = approximateTextPositionY - signatureHeight - 5; // 10px jarak antara teks terakhir dan tanda tangan
+            // Menempatkan tanda tangan di bawah teks terakhir
+            const yPosition = approximateTextPositionY - signatureHeight - 10; // 10px jarak antara teks terakhir dan tanda tangan
 
-    // Menempatkan tanda tangan di bagian bawah kalimat terakhir
-    const xPosition = width - signatureWidth - 50; // 30px dari sisi kanan halaman
+            // Menempatkan tanda tangan di bagian bawah kalimat terakhir
+            const xPosition = width - signatureWidth - 50; // 30px dari sisi kanan halaman
 
-    // Menambahkan gambar tanda tangan ke halaman terakhir
-    lastPage.drawImage(signatureImage, {
-        x: xPosition,
-        y: yPosition,
-        width: signatureWidth,
-        height: signatureHeight,
-    });
+            // Menambahkan gambar tanda tangan ke halaman terakhir
+            lastPage.drawImage(signatureImage, {
+                x: xPosition,
+                y: yPosition,
+                width: signatureWidth,
+                height: signatureHeight,
+            });
 
-    // Menghasilkan PDF yang telah disign
-    const pdfBytes = await pdfDoc.save();
+            // Menghasilkan PDF yang telah disign
+            const pdfBytes = await pdfDoc.save();
 
-    // Menyediakan link untuk mendownload PDF yang telah ditandatangani
-    const downloadLink = document.getElementById('download-link');
-    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-    downloadLink.href = URL.createObjectURL(blob);
-    downloadLink.style.display = 'inline-block';
-}
-
+            // Menyediakan link untuk mendownload PDF yang telah ditandatangani
+            const downloadLink = document.getElementById('download-link');
+            const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+            downloadLink.href = URL.createObjectURL(blob);
+            downloadLink.style.display = 'inline-block';
+        }
 
         // Fungsi untuk meng-handle file PDF yang diupload
         function handlePdfUpload(event) {
@@ -177,6 +133,17 @@
                 reader.readAsArrayBuffer(file);
             }
         }
+
+        // Mengubah ukuran kanvas saat window diubah ukuran
+        window.addEventListener('resize', resizeCanvas);	
+
+        // Set ukuran awal kanvas
+        resizeCanvas();
+
+        // Menetapkan ketebalan garis untuk tanda tangan (lebih tebal)
+        ctx.lineWidth = 5; // Menambah ketebalan garis
+        ctx.lineJoin = 'round';  // Membuat garis lebih halus
+        ctx.lineCap = 'round';   // Membuat ujung garis lebih halus
     </script>
 </body>
 </html>
