@@ -1,0 +1,8 @@
+{
+  "name": "NEXUS",
+  "description": "Toko streetwear NEXUS lengkap dengan keranjang, checkout verifikasi email OTP, simulasi Midtrans, CS Chat, dan Admin Database Dashboard.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
